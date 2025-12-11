@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Notification</title>
+</head>
+<body>
+    <h2>Create Notification</h2>
+
+    <form id="notifyForm">
+        <label>
+            Message:
+            <input type="text" id="message" required>
+        </label>
+        <br><br>
+
+        <label>
+            Send date:
+            <input type="date" id="date" required>
+        </label>
+        <br><br>
+
+        <label>
+            Send time:
+            <input type="time" id="time" required>
+        </label>
+        <br><br>
+
+        <button type="submit">Send</button>
+    </form>
+
+    <p id="result"></p>
+
+    <hr>
+
+    <h2>Check Notification</h2>
+    <form id="checkForm">
+        <label>
+            Notification ID:
+            <input type="text" id="checkId" required>
+        </label>
+        <button type="submit">Check</button>
+    </form>
+    <pre id="checkResult"></pre>
+
+    <hr>
+
+    <h2>Cancel Notification</h2>
+    <form id="cancelForm">
+        <label>
+            Notification ID:
+            <input type="text" id="cancelId" required>
+        </label>
+        <button type="submit">Cancel</button>
+    </form>
+    <p id="cancelResult"></p>
+
+    <script src="/static/notify.js"></script>
+</body>
+</html>
