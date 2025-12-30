@@ -1,0 +1,2 @@
+CREATE DATABASE shortener;
+CREATE DATABASE analytics;

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <title>URL Shortener</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            max-width: 700px;
+        }
+
+        h1, h2 {
+            margin-bottom: 10px;
+        }
+
+        input, button {
+            padding: 8px;
+            margin: 5px 0;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button {
+            cursor: pointer;
+        }
+
+        .result {
+            margin-top: 10px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+
+        pre {
+            background: #f0f0f0;
+            padding: 10px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+
+<h1>URL Shortener</h1>
+
+<h2>Создать короткую ссылку</h2>
+<input id="originalUrl" type="text" placeholder="https://example.com" />
+<input id="customAlias" type="text" placeholder="Кастомный alias (необязательно)" />
+<button onclick="shorten()">Сократить</button>
+
+<div id="shortenResult" class="result"></div>
+
+<hr />
+
+<h2>Аналитика</h2>
+<input id="analyticsAlias" type="text" placeholder="short_url" />
+<button onclick="loadAnalytics()">Получить аналитику</button>
+
+<pre id="analyticsResult"></pre>
+
+<script src="app.js"></script>
+</body>
+</html>
