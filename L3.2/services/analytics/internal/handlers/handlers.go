@@ -1,3 +1,4 @@
+// Package handlers содержит HTTP-обработчики (эндпоинты) приложения.
 package handlers
 
 import (
@@ -11,11 +12,13 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// Handler объединяет зависимости HTTP-слоя: логгер и сервис аналитики.
 type Handler struct {
 	log       *slog.Logger
 	analytics *service.AnalyticsService
 }
 
+// New создаёт новый Handler.
 func New(log *slog.Logger, analytics *service.AnalyticsService) *Handler {
 	return &Handler{
 		log:       log,
@@ -23,6 +26,7 @@ func New(log *slog.Logger, analytics *service.AnalyticsService) *Handler {
 	}
 }
 
+// Click принимает событие клика по короткой ссылке и сохраняет его.
 func (h *Handler) Click(w http.ResponseWriter, r *http.Request) {
 	const op = "handlers.click"
 	log := h.log.With(slog.String("op", op))
@@ -60,6 +64,7 @@ func (h *Handler) Click(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNoContent)
 }
 
+// GetAnalytics возвращает агрегированную статистику кликов по short.
 func (h *Handler) GetAnalytics(w http.ResponseWriter, r *http.Request) {
 	const op = "handlers.getAnalytics"
 	log := h.log.With(slog.String("op", op))
@@ -77,7 +82,6 @@ func (h *Handler) GetAnalytics(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// маппинг store → dto
 	resp := dto.AnalyticsResponse{
 		Short: short,
 		Total: total,

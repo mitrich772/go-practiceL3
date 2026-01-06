@@ -1,3 +1,4 @@
+// Package config содержит структуры конфигурации и загрузчик конфигурации.
 package config
 
 import (
@@ -8,6 +9,7 @@ import (
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
+// Config описывает конфигурацию shortener-сервиса.
 type Config struct {
 	Env       string `yaml:"env" env-default:"local"`
 	CachePath string `yaml:"cache_path" env-required:"true"`
@@ -17,10 +19,12 @@ type Config struct {
 	HTTPServer HTTPServer `yaml:"http_server"`
 }
 
+// Analytics содержит настройки подключения к сервису аналитики.
 type Analytics struct {
 	URL string `yaml:"url" env-required:"true"`
 }
 
+// Storage содержит настройки подключения к PostgreSQL.
 type Storage struct {
 	Host            string        `yaml:"host" env-required:"true"`
 	Port            int           `yaml:"port" env-default:"5432"`
@@ -33,12 +37,16 @@ type Storage struct {
 	ConnMaxLifetime time.Duration `yaml:"conn_max_lifetime" env-default:"30m"`
 }
 
+// HTTPServer содержит настройки HTTP-сервера.
 type HTTPServer struct {
 	Address     string        `yaml:"address" env-default:"localhost:8080"`
 	Timeout     time.Duration `yaml:"timeout" env-default:"4s"`
 	IdleTimeout time.Duration `yaml:"idle_timeout" env-default:"60s"`
 }
 
+// MustLoad загружает конфиг из файла по пути configPath.
+// Если configPath пустой, используется переменная окружения CONFIG_PATH.
+// При любой ошибке завершает процесс через log.Fatal/log.Fatalf.
 func MustLoad(configPath string) *Config {
 	if configPath == "" {
 		configPath = os.Getenv("CONFIG_PATH")

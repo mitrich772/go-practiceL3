@@ -1,24 +1,30 @@
+// Package postgres содержит реализацию хранилища на PostgreSQL.
 package postgres
 
 import (
-	"analytics/internal/handlers/dto"
 	"context"
 	"database/sql"
 	"errors"
 
-	_ "github.com/lib/pq"
+	"analytics/internal/handlers/dto"
+
+	_ "github.com/lib/pq" // register PostgreSQL driver
 )
 
+// ErrNotFound возвращается, когда искомая запись отсутствует.
 var ErrNotFound = errors.New("not found")
 
+// StorePG реализует доступ к PostgreSQL через database/sql.
 type StorePG struct {
 	db *sql.DB
 }
 
+// New создаёт PostgreSQL-хранилище на основе *sql.DB.
 func New(db *sql.DB) *StorePG {
 	return &StorePG{db: db}
 }
 
+// InsertClick сохраняет событие клика в таблицу clicks.
 func (s *StorePG) InsertClick(ctx context.Context, short, ip, ua, referer string) error {
 	const q = `
 		INSERT INTO clicks (short, ip, user_agent, referer)
@@ -28,8 +34,8 @@ func (s *StorePG) InsertClick(ctx context.Context, short, ip, ua, referer string
 	return err
 }
 
+// GetStats возвращает общее количество кликов и последние клики (до 100 записей) по short.
 func (s *StorePG) GetStats(ctx context.Context, short string) (int64, []dto.ClickEntry, error) {
-
 	var total int64
 	if err := s.db.QueryRowContext(
 		ctx,

@@ -1,3 +1,4 @@
+// Package handlers содержит HTTP-обработчики shortener-сервиса.
 package handlers
 
 import (
@@ -17,16 +18,18 @@ import (
 	"github.com/go-chi/chi/v5"
 )
 
+// Handler хранит зависимости HTTP-слоя.
 type Handler struct {
 	log *slog.Logger
 
 	analyticsURL string
 	httpClient   *http.Client
 
-	shortener  *service.ShortenerService
-	redirector *service.RedirectService
+	shortener  service.Shortener
+	redirector service.Redirector
 }
 
+// New создаёт новый Handler.
 func New(
 	log *slog.Logger,
 	shortener *service.ShortenerService,
@@ -44,7 +47,7 @@ func New(
 	}
 }
 
-// Handlers
+// Shorten создаёт короткий alias для переданного URL и возвращает short_url.
 func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 	const op = "handlers.shorten"
 	log := h.log.With(
@@ -53,7 +56,6 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 
 	var req dto.ShortenRequest
 
-	// json parse to dto.ShortenRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Warn("invalid json",
 			slog.Any("error", err),
@@ -62,7 +64,6 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// validate
 	if err := validation.ValidateShorten(req); err != nil {
 		log.Warn("validation error",
 			slog.Any("error", err),
@@ -71,13 +72,11 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// save
 	alias, err := h.shortener.Shorten(
 		r.Context(),
 		req.URL,
 		req.Alias,
 	)
-	// check save error
 	if err != nil {
 		switch {
 		case errors.Is(err, service.ErrAliasAlreadyExists):
@@ -101,7 +100,6 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// make response
 	resp := dto.ShortenResponse{
 		ShortURL: getBaseURL(r) + "/s/" + alias,
 	}
@@ -113,6 +111,7 @@ func (h *Handler) Shorten(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, resp)
 }
 
+// Redirect делает редирект по short_url на оригинальный URL.
 func (h *Handler) Redirect(w http.ResponseWriter, r *http.Request) {
 	const op = "handlers.redirect"
 	log := h.log.With(slog.String("op", op))
@@ -135,7 +134,7 @@ func (h *Handler) Redirect(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	// stat send
+
 	go h.sendClickEvent(r, short)
 
 	log.Info("redirect",
@@ -145,6 +144,7 @@ func (h *Handler) Redirect(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, originalURL, http.StatusFound)
 }
 
+// ProxyAnalytics проксирует запрос аналитики в analytics-сервис.
 func (h *Handler) ProxyAnalytics(w http.ResponseWriter, r *http.Request) {
 	const op = "handlers.proxyAnalytics"
 	log := h.log.With(slog.String("op", op))

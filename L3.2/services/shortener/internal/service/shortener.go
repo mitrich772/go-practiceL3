@@ -1,3 +1,4 @@
+// Package service содержит бизнес-логику shortener-сервиса.
 package service
 
 import (
@@ -13,18 +14,22 @@ import (
 	gonanoid "github.com/matoous/go-nanoid/v2"
 )
 
+// Shortener описывает возможность создания alias для URL.
 type Shortener interface {
 	Shorten(ctx context.Context, url, alias string) (string, error)
 }
 
+// cacheTTL задаёт время жизни записи в кеше.
 const cacheTTL = 10 * time.Minute
 
+// ShortenerService реализует Shortener через store и cache.
 type ShortenerService struct {
 	store store.Store
 	cache cache.Cache
 	log   *slog.Logger
 }
 
+// NewShortener создаёт ShortenerService.
 func NewShortener(
 	store store.Store,
 	cache cache.Cache,
@@ -37,6 +42,7 @@ func NewShortener(
 	}
 }
 
+// Shorten создаёт короткий alias для url. Если alias передан пользователем — пытается сохранить его.
 func (s *ShortenerService) Shorten(ctx context.Context, url, alias string) (string, error) {
 	if alias != "" {
 		return s.withUserAlias(ctx, alias, url)

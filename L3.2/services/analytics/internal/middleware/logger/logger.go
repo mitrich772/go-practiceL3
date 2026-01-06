@@ -1,3 +1,4 @@
+// Package logger содержит middleware для логирования HTTP-запросов.
 package logger
 
 import (
@@ -8,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
+// New возвращает катомный логгер.
 func New(log *slog.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		log := log.With(
