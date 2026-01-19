@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>CommentTree</title>
+</head>
+
+<body>
+  <h1>Комментарии</h1>
+
+  <section>
+    <h3>Поиск</h3>
+
+    <input id="searchQ" placeholder="Введите текст для поиска..." />
+
+    <select id="searchSort">
+      <option value="rank">rank (релевантность)</option>
+      <option value="created_at">created_at (дата)</option>
+      <option value="id">id</option>
+    </select>
+
+    <select id="searchOrder">
+      <option value="desc">desc</option>
+      <option value="asc">asc</option>
+    </select>
+
+    <button id="btnSearch" type="button">Найти</button>
+    <button id="btnClear" type="button">Сброс</button>
+  </section>
+
+  <hr />
+
+  <section>
+    <h3>Написать комментарий</h3>
+    <textarea id="newRootBody" placeholder="Текст комментария..."></textarea><br />
+    <button id="btnCreateRoot" type="button">Отправить</button>
+  </section>
+
+  <div id="status"></div>
+
+  <hr />
+
+  <section>
+    <h3>Список комментариев</h3>
+
+    <div>
+      <button id="btnPrev" type="button">←</button>
+      <button id="btnNext" type="button">→</button>
+      <small id="modeLabel">Режим: корневые</small>
+    </div>
+
+    <div id="comments"></div>
+  </section>
+
+  <script src="./app.js"></script>
+</body>
+</html>
