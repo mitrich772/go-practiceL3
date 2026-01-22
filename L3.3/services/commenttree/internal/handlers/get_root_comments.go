@@ -1,27 +1,31 @@
 package handlers
 
 import (
-	"commenttree/internal/dto"
 	"context"
 	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
+
+	"commenttree/internal/dto"
 )
 
+// GetRootCommentsResponse describes paginated list of root comments.
 type GetRootCommentsResponse struct {
 	Items   []dto.CommentNode `json:"items"`
 	Limit   int               `json:"limit"`
 	Offset  int               `json:"offset"`
 	HasMore bool              `json:"has_more"`
 }
+
+// RootCommentsGetter lists root comments from storage.
 type RootCommentsGetter interface {
 	ListRoots(ctx context.Context, q dto.GetRootCommentsQuery) ([]dto.CommentNode, bool, error)
 }
 
-// GET /roots?limit=20&offset=0&sort=created_at&order=desc
+// GetRootCommments handles GET /roots and returns root comments with pagination.
 func (h *Handler) GetRootCommments(w http.ResponseWriter, r *http.Request) {
-	// defaults
+	// Default query settings.
 	q := dto.GetRootCommentsQuery{
 		Limit:  20,
 		Offset: 0,
@@ -38,7 +42,6 @@ func (h *Handler) GetRootCommments(w http.ResponseWriter, r *http.Request) {
 		q.Limit = v
 	}
 
-	// offset
 	if s := r.URL.Query().Get("offset"); s != "" {
 		v, err := strconv.Atoi(s)
 		if err != nil || v < 0 {
@@ -48,7 +51,7 @@ func (h *Handler) GetRootCommments(w http.ResponseWriter, r *http.Request) {
 		q.Offset = v
 	}
 
-	// sort whitelist
+	// Whitelist sort fields.
 	if s := r.URL.Query().Get("sort"); s != "" {
 		s = strings.ToLower(s)
 		if s != "created_at" && s != "id" {
@@ -58,7 +61,7 @@ func (h *Handler) GetRootCommments(w http.ResponseWriter, r *http.Request) {
 		q.Sort = s
 	}
 
-	// order whitelist
+	// Whitelist order values.
 	if s := r.URL.Query().Get("order"); s != "" {
 		s = strings.ToLower(s)
 		if s != "asc" && s != "desc" {
@@ -82,7 +85,6 @@ func (h *Handler) GetRootCommments(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
-
 	enc := json.NewEncoder(w)
 	enc.SetIndent("", "  ")
 	_ = enc.Encode(resp)

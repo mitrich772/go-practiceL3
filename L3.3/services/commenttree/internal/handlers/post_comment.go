@@ -10,19 +10,24 @@ import (
 	"commenttree/internal/dto"
 )
 
+// CreateCommentRequest describes request payload for creating a comment.
 type CreateCommentRequest struct {
-	ParentID *int64 `json:"parent_id"` // null -> корневой
+	// ParentID is null for a root comment.
+	ParentID *int64 `json:"parent_id"`
 	Body     string `json:"body"`
 }
 
+// CreateCommentResponse describes response payload after creating a comment.
 type CreateCommentResponse struct {
-	Created_comment dto.Comment `json:"created_comment"`
+	CreatedComment dto.Comment `json:"created_comment"`
 }
 
+// CommentCreator creates comments in storage.
 type CommentCreator interface {
 	Create(ctx context.Context, parentID *int64, body string) (dto.Comment, error)
 }
 
+// CreateComment handles POST /comments and creates a new comment.
 func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	var req CreateCommentRequest
 
@@ -37,7 +42,7 @@ func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	created_comment, err := h.creator.Create(r.Context(), req.ParentID, req.Body)
+	createdComment, err := h.creator.Create(r.Context(), req.ParentID, req.Body)
 	if err != nil {
 		log.Printf("%v", err)
 		http.Error(w, "failed to create comment", http.StatusInternalServerError)
@@ -47,5 +52,5 @@ func (h *Handler) CreateComment(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	w.WriteHeader(http.StatusCreated)
 
-	_ = json.NewEncoder(w).Encode(CreateCommentResponse{Created_comment: created_comment})
+	_ = json.NewEncoder(w).Encode(CreateCommentResponse{CreatedComment: createdComment})
 }

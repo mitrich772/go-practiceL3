@@ -1,24 +1,27 @@
 package handlers
 
 import (
-	"commenttree/internal/dto"
-	stErr "commenttree/internal/store/postgres/errors"
 	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
 	"strconv"
+
+	"commenttree/internal/dto"
+	stErr "commenttree/internal/store/postgres/errors"
 )
 
+// GetCommentsResponse describes response payload for subtree request.
 type GetCommentsResponse struct {
 	Tree dto.CommentNode `json:"tree"`
 }
 
+// CommentGetter returns a comment subtree.
 type CommentGetter interface {
 	GetSubtree(ctx context.Context, rootID int64, maxDepth int) (dto.CommentNode, error)
 }
 
-// GET /comments?parent={id}&depth={maxDepth}
+// GetComments handles GET /comments?parent={id}&depth={maxDepth} and returns a subtree.
 func (h *Handler) GetComments(w http.ResponseWriter, r *http.Request) {
 	parentIDstr := r.URL.Query().Get("parent")
 	if parentIDstr == "" {
@@ -34,7 +37,6 @@ func (h *Handler) GetComments(w http.ResponseWriter, r *http.Request) {
 
 	depthStr := r.URL.Query().Get("depth")
 	maxDepth := -1
-
 	if depthStr != "" {
 		d, err := strconv.Atoi(depthStr)
 		if err != nil || d < -1 {
@@ -43,6 +45,7 @@ func (h *Handler) GetComments(w http.ResponseWriter, r *http.Request) {
 		}
 		maxDepth = d
 	}
+
 	tree, err := h.getter.GetSubtree(r.Context(), parentID, maxDepth)
 	if err != nil {
 		if errors.Is(err, stErr.ErrNotFound) {

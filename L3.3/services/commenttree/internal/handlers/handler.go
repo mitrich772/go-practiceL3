@@ -1,5 +1,6 @@
 package handlers
 
+// Handler groups HTTP handlers and their dependencies.
 type Handler struct {
 	creator     CommentCreator
 	getter      CommentGetter
@@ -8,6 +9,7 @@ type Handler struct {
 	searcher    CommentSearcher
 }
 
+// New builds a Handler with all required dependencies.
 func New(
 	creator CommentCreator,
 	getter CommentGetter,

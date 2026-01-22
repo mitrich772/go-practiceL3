@@ -1,53 +1,62 @@
 package postgres
 
 import (
-	"commenttree/internal/dto"
-	trUtil "commenttree/internal/store/utils"
 	"context"
 	"database/sql"
 	"fmt"
 	"strings"
-	"time"
 
-	_ "github.com/lib/pq"
+	"commenttree/internal/dto"
+	trUtil "commenttree/internal/store/utils"
 )
 
+// StorePG implements comment storage using PostgreSQL.
 type StorePG struct {
 	db *sql.DB
 }
 
-// New создаёт StorePG.
+// New creates a new StorePG instance.
 func New(db *sql.DB) *StorePG {
 	return &StorePG{db: db}
 }
 
+// Create inserts a new comment and returns the created entity.
 func (s *StorePG) Create(ctx context.Context, parentID *int64, body string) (dto.Comment, error) {
 	const query = `
 		INSERT INTO comments (parent_id, body)
 		VALUES ($1, $2)
-		RETURNING id
+		RETURNING id, created_at
 	`
 
-	var CreatedID int64
-	err := s.db.QueryRowContext(ctx, query, parentID, body).Scan(&CreatedID)
-	if err != nil {
+	var (
+		createdID int64
+		createdAt sql.NullTime
+	)
+
+	if err := s.db.QueryRowContext(ctx, query, parentID, body).Scan(&createdID, &createdAt); err != nil {
 		return dto.Comment{}, err
 	}
+
 	created := dto.Comment{
-		ID:        CreatedID,
-		ParentID:  parentID,
-		Body:      body,
-		CreatedAt: time.Now(),
+		ID:       createdID,
+		ParentID: parentID,
+		Body:     body,
 	}
+	if createdAt.Valid {
+		created.CreatedAt = createdAt.Time
+	}
+
 	return created, nil
 }
 
+// GetSubtree loads a comment subtree starting from rootID up to maxDepth.
 func (s *StorePG) GetSubtree(ctx context.Context, rootID int64, maxDepth int) (dto.CommentNode, error) {
 	if maxDepth < 0 {
 		maxDepth = 1000
 	}
+
 	const query = `
-	WITH RECURSIVE tree AS (
+WITH RECURSIVE tree AS (
 	SELECT
 		c.id,
 		c.parent_id,
@@ -70,11 +79,11 @@ func (s *StorePG) GetSubtree(ctx context.Context, rootID int64, maxDepth int) (d
 	FROM comments ch
 	JOIN tree t ON ch.parent_id = t.id
 	WHERE t.depth < $2
-	)
-	SELECT id, parent_id, body, created_at, depth
-	FROM tree
-	ORDER BY path;
-	`
+)
+SELECT id, parent_id, body, created_at, depth
+FROM tree
+ORDER BY path;
+`
 
 	rows, err := s.db.QueryContext(ctx, query, rootID, maxDepth)
 	if err != nil {
@@ -89,7 +98,7 @@ func (s *StorePG) GetSubtree(ctx context.Context, rootID int64, maxDepth int) (d
 			id      int64
 			parent  sql.NullInt64
 			body    string
-			created time.Time
+			created sql.NullTime
 			depth   int
 		)
 
@@ -103,13 +112,17 @@ func (s *StorePG) GetSubtree(ctx context.Context, rootID int64, maxDepth int) (d
 			pid = &v
 		}
 
-		flat = append(flat, dto.CommentNode{
-			ID:        id,
-			ParentID:  pid,
-			Body:      body,
-			CreatedAt: created,
-			Children:  []dto.CommentNode{},
-		})
+		node := dto.CommentNode{
+			ID:       id,
+			ParentID: pid,
+			Body:     body,
+			Children: []dto.CommentNode{},
+		}
+		if created.Valid {
+			node.CreatedAt = created.Time
+		}
+
+		flat = append(flat, node)
 	}
 
 	if err := rows.Err(); err != nil {
@@ -124,31 +137,47 @@ func (s *StorePG) GetSubtree(ctx context.Context, rootID int64, maxDepth int) (d
 	return tree, nil
 }
 
-// сделать возврат id удаленного ?
+// Delete removes a comment by id.
 func (s *StorePG) Delete(ctx context.Context, id int64) error {
-	const query = `
-		DELETE FROM comments WHERE id = $1;
-	`
+	const query = `DELETE FROM comments WHERE id = $1;`
 	_, err := s.db.ExecContext(ctx, query, id)
 	return err
 }
 
+// ListRoots returns root comments with pagination.
 func (s *StorePG) ListRoots(ctx context.Context, q dto.GetRootCommentsQuery) ([]dto.CommentNode, bool, error) {
-	orderBy := q.Sort + " " + q.Order
+	// Whitelist for ORDER BY (defense-in-depth).
+	sortCol := "c.created_at"
+	switch strings.ToLower(q.Sort) {
+	case "created_at":
+		sortCol = "c.created_at"
+	case "id":
+		sortCol = "c.id"
+	}
+
+	order := "desc"
+	switch strings.ToLower(q.Order) {
+	case "asc":
+		order = "asc"
+	case "desc":
+		order = "desc"
+	}
+
+	orderBy := fmt.Sprintf("%s %s", sortCol, order)
 	limitPlus := q.Limit + 1
 
 	query := `
-		SELECT
-		c.id,
-		c.parent_id,
-		c.body,
-		c.created_at,
-		(SELECT COUNT(*) FROM comments ch WHERE ch.parent_id = c.id) AS children_count
-		FROM comments c
-		WHERE c.parent_id IS NULL
-		ORDER BY ` + orderBy + `
-		LIMIT $1 OFFSET $2;
-	`
+SELECT
+	c.id,
+	c.parent_id,
+	c.body,
+	c.created_at,
+	(SELECT COUNT(*) FROM comments ch WHERE ch.parent_id = c.id) AS children_count
+FROM comments c
+WHERE c.parent_id IS NULL
+ORDER BY ` + orderBy + `
+LIMIT $1 OFFSET $2;
+`
 
 	rows, err := s.db.QueryContext(ctx, query, limitPlus, q.Offset)
 	if err != nil {
@@ -179,8 +208,9 @@ func (s *StorePG) ListRoots(ctx context.Context, q dto.GetRootCommentsQuery) ([]
 	return items, hasMore, nil
 }
 
+// Search finds comments by full-text query with pagination.
 func (s *StorePG) Search(ctx context.Context, q dto.SearchCommentsQuery) ([]dto.CommentNode, bool, error) {
-	// whitelist для ORDER BY (чтобы не было SQL injection)
+	// Whitelist for ORDER BY (to avoid SQL injection).
 	sortCol := "rank"
 	switch strings.ToLower(q.Sort) {
 	case "rank":
@@ -204,14 +234,14 @@ func (s *StorePG) Search(ctx context.Context, q dto.SearchCommentsQuery) ([]dto.
 
 	query := `
 SELECT
-  c.id,
-  c.parent_id,
-  c.body,
-  c.created_at,
-  (SELECT COUNT(*) FROM comments ch WHERE ch.parent_id = c.id) AS children_count,
-  ts_rank_cd(to_tsvector('russian', c.body), qq) AS rank
+	c.id,
+	c.parent_id,
+	c.body,
+	c.created_at,
+	(SELECT COUNT(*) FROM comments ch WHERE ch.parent_id = c.id) AS children_count,
+	ts_rank_cd(to_tsvector('russian', c.body), qq) AS rank
 FROM comments c,
-     websearch_to_tsquery('russian', $1) qq
+	 websearch_to_tsquery('russian', $1) qq
 WHERE to_tsvector('russian', c.body) @@ qq
 ORDER BY ` + orderBy + `, c.created_at DESC
 LIMIT $2 OFFSET $3;
@@ -247,7 +277,7 @@ LIMIT $2 OFFSET $3;
 			it.ParentID = nil
 		}
 
-		it.Children = []dto.CommentNode{} // на поиске дерево не грузим
+		it.Children = []dto.CommentNode{} // subtree is not loaded for search
 		items = append(items, it)
 	}
 

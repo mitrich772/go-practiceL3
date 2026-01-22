@@ -3,7 +3,7 @@ package main
 import (
 	"commenttree/internal/config"
 	"commenttree/internal/handlers"
-	"commenttree/internal/middleware/logger"
+	customLog "commenttree/internal/middleware/logger"
 	"commenttree/internal/store/postgres"
 	"context"
 	"database/sql"
@@ -19,10 +19,10 @@ import (
 )
 
 func main() {
-	cfg := config.MustLoad("config/local.yaml")
-	log := setupLogger(cfg.Env)
+	cfg := config.MustLoad("config/local.yaml") // config
+	log := setupLogger(cfg.Env)                 // logger
 
-	dsn := fmt.Sprintf(
+	dsn := fmt.Sprintf( // dsn
 		"host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		cfg.Storage.Host,
 		cfg.Storage.Port,
@@ -32,7 +32,7 @@ func main() {
 		cfg.Storage.SSLMode,
 	)
 
-	sqlDB, err := sql.Open("postgres", dsn)
+	sqlDB, err := sql.Open("postgres", dsn) // db open
 	if err != nil {
 		log.Error("failed to open postgres", slog.Any("err", err))
 		os.Exit(1)
@@ -40,6 +40,7 @@ func main() {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
 	defer cancel()
+
 	if err := sqlDB.PingContext(ctx); err != nil {
 		log.Error("failed to ping postgres", slog.Any("err", err))
 		os.Exit(1)
@@ -48,11 +49,11 @@ func main() {
 	pgStore := postgres.New(sqlDB)
 	hl := handlers.New(pgStore, pgStore, pgStore, pgStore, pgStore)
 
-	r := chi.NewRouter()
+	r := chi.NewRouter() // router
 
-	r.Use(middleware.RequestID)
-	r.Use(logger.New(log))
-	r.Use(middleware.Recoverer)
+	r.Use(middleware.RequestID) // req id
+	r.Use(customLog.New(log))   // access log
+	r.Use(middleware.Recoverer) // recover
 
 	// routes
 	r.Get("/comments", hl.GetComments)
@@ -61,14 +62,14 @@ func main() {
 	r.Get("/roots", hl.GetRootCommments)
 	r.Get("/search", hl.SearchComments)
 
-	// web
+	// static
 	fs := http.FileServer(http.Dir("./web"))
 	r.Get("/*", fs.ServeHTTP)
 
 	addr := cfg.HTTPServer.Address
-	log.Info("server starting", slog.String("addr", addr))
+	log.Info("server starting", slog.String("addr", addr)) // start
 
-	srv := &http.Server{
+	srv := &http.Server{ // http server
 		Addr:         addr,
 		Handler:      r,
 		ReadTimeout:  cfg.HTTPServer.Timeout,
@@ -76,7 +77,7 @@ func main() {
 		IdleTimeout:  cfg.HTTPServer.IdleTimeout,
 	}
 
-	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+	if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed { // serve
 		log.Error("server stopped with error", slog.Any("err", err))
 		os.Exit(1)
 	}
@@ -90,10 +91,12 @@ const (
 
 func setupLogger(env string) *slog.Logger {
 	var log *slog.Logger
-	switch env {
+
+	switch env { // env
 	case localEnv:
-		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug}))
+		log = slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelDebug})) // debug
 	}
-	// TODO: prod, dev ?
+	// TODO: prod/dev
+
 	return log
 }

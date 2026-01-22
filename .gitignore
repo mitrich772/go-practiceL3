@@ -24,3 +24,5 @@ dist/
 
 # Temporary
 tmp/
+
+.sh
