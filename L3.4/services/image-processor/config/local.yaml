@@ -1,0 +1,23 @@
+server:
+  addr: ":8080"
+
+db:
+  host: localhost
+  port: 5434
+  user: postgres
+  password: postgres
+  dbname: postgres
+
+kafka:
+  brokers:
+    - "localhost:29092"
+  topic_images_in: "images.in"
+  producer:
+    client_id: "image-api"
+
+storage:
+  original_dir: "C:/Users/dima/Desktop/L3/L3.4/data/original"
+  processed_dir: "C:/Users/dima/Desktop/L3/L3.4/data/processed"
+
+upload-conf:
+  max_upload_bytes: 10485760

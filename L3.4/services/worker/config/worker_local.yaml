@@ -1,0 +1,22 @@
+env: local
+
+db:
+  host: localhost
+  port: 5434
+  user: postgres
+  password: postgres
+  dbname: postgres
+  sslmode: disable
+
+kafka:
+  brokers:
+    - "localhost:29092"
+  topic_images_in: "images.in"
+  consumer:
+    group_id: "image-worker"
+
+storage:
+  original_dir: "C:/Users/dima/Desktop/L3/L3.4/data/original"
+  processed_dir: "C:/Users/dima/Desktop/L3/L3.4/data/processed"
+
+
