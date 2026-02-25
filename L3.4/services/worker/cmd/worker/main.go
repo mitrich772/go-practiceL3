@@ -13,6 +13,7 @@ import (
 	"worker/internal/kafka_consumer"
 
 	pgrepo "worker/internal/repo/postgres"
+	"worker/internal/service"
 	localstorage "worker/internal/storage"
 
 	"github.com/wb-go/wbf/dbpg"
@@ -99,7 +100,10 @@ func main() {
 
 	fetchRetry := retry.Strategy{Attempts: 10, Delay: 1 * time.Second, Backoff: 2}
 
-	workerConsumer := kafka_consumer.New(log, consumer, fetchRetry, fs, dbRepo)
+	// --- image processor service ---
+	imgProc := service.NewImageProcessor(log)
+
+	workerConsumer := kafka_consumer.New(log, consumer, fetchRetry, fs, dbRepo, imgProc)
 
 	// ВАЖНО: StartConsume блокирует — запускаем в goroutine
 	go workerConsumer.StartConsume(ctx)

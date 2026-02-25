@@ -7,8 +7,9 @@ import (
 
 	"image-processor/internal/repo"
 
-	"github.com/go-chi/chi/v5"
 	"log/slog"
+
+	"github.com/go-chi/chi/v5"
 )
 
 // DeleteImage — DELETE /image/{id}

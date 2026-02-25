@@ -6,14 +6,14 @@ import (
 	"errors"
 	"io"
 	"log/slog"
-	"path/filepath"
-	"strings"
 	"time"
 
 	"contracts/dto"
 	"contracts/model"
 	contractStorage "contracts/storage"
 	"worker/internal/repo"
+
+	"worker/internal/service"
 
 	"github.com/segmentio/kafka-go"
 	wbfkafka "github.com/wb-go/wbf/kafka"
@@ -28,6 +28,8 @@ type WorkerConsumer struct {
 	storage contractStorage.WorkerStorage
 	repo    repo.WorkerImageRepo
 
+	imgProc service.ImageProcessor
+
 	// commitRetry retry.Strategy // TODO: опционально, если захочешь retry на commit
 }
 
@@ -38,6 +40,7 @@ func New(
 	fetchRetry retry.Strategy,
 	st contractStorage.WorkerStorage,
 	rp repo.WorkerImageRepo,
+	imgProc service.ImageProcessor,
 ) *WorkerConsumer {
 	if log == nil {
 		log = slog.Default()
@@ -64,6 +67,7 @@ func New(
 		fetchRetry: fetchRetry,
 		storage:    st,
 		repo:       rp,
+		imgProc:    imgProc,
 	}
 }
 
@@ -83,6 +87,10 @@ func (c *WorkerConsumer) StartConsume(ctx context.Context) {
 	}
 	if c.repo == nil {
 		l.Error("repo is nil")
+		return
+	}
+	if c.imgProc == nil {
+		l.Error("image processor is nil")
 		return
 	}
 
@@ -159,8 +167,8 @@ func (c *WorkerConsumer) StartConsume(ctx context.Context) {
 			continue
 		}
 
-		// 4) обработка (ПОКА STUB: просто копия)
-		outBytes, outExt, procErr := c.processStub(job, origBytes)
+		// 4) обработка изображения через сервис
+		outBytes, outExt, procErr := c.imgProc.Process(ctx, origBytes, job)
 		if procErr != nil {
 			l.Error("process failed", slog.Any("err", procErr), slog.String("id", job.ID))
 			c.markFailedBestEffort(ctx, l, job.ID, "process failed")
@@ -255,16 +263,4 @@ func (c *WorkerConsumer) markFailedBestEffort(ctx context.Context, l *slog.Logge
 	}
 }
 
-// processStub: временно “обработка” = копия.
-// TODO: заменить на реальную обработку (decode -> resize/thumb/watermark -> encode).
-func (c *WorkerConsumer) processStub(job dto.ImageJob, in []byte) ([]byte, string, error) {
-	ext := filepath.Ext(job.OriginalPath)
-	if ext == "" {
-		ext = ".jpg"
-	}
-	ext = strings.ToLower(ext)
-	if !strings.HasPrefix(ext, ".") {
-		ext = "." + ext
-	}
-	return in, ext, nil
-}
+// processStub removed in favor of ImageProcessor

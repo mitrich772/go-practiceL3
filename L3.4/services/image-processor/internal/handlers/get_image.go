@@ -9,8 +9,9 @@ import (
 	"path/filepath"
 
 	"contracts/model"
-	"github.com/go-chi/chi/v5"
 	"image-processor/internal/repo"
+
+	"github.com/go-chi/chi/v5"
 )
 
 // GetImage — GET /image/{id}

@@ -114,7 +114,7 @@ func main() {
 
 	h := handlers.New(log, producer, storePg, localStorage, kafkaRetryStrategy, cfg.UploadConf.MaxUploadBytes)
 	r.Post("/upload", h.Upload)
-	r.Get("/image/{id}", nil)
+	r.Get("/image/{id}", h.GetImage)
 	r.Delete("/image/{id}", h.DeleteImage)
 
 	// server
