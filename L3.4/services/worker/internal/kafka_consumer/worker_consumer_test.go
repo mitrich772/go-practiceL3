@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"testing"
 
-	"contracts/dto"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"contracts/dto"
 )
 
 func TestParseJob_Valid(t *testing.T) {

@@ -4,11 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"image-processor/internal/config"
-	"image-processor/internal/handlers"
-	"image-processor/internal/middleware/logger"
-	"image-processor/internal/repo/postgres"
-	"image-processor/internal/storage"
 	"log/slog"
 	"net/http"
 	"os"
@@ -21,6 +16,12 @@ import (
 	"github.com/wb-go/wbf/dbpg"
 	"github.com/wb-go/wbf/kafka"
 	"github.com/wb-go/wbf/retry"
+
+	"image-processor/internal/config"
+	"image-processor/internal/handlers"
+	"image-processor/internal/middleware/logger"
+	"image-processor/internal/repo/postgres"
+	"image-processor/internal/storage"
 )
 
 const (
@@ -116,6 +117,12 @@ func main() {
 	r.Post("/upload", h.Upload)
 	r.Get("/image/{id}", h.GetImage)
 	r.Delete("/image/{id}", h.DeleteImage)
+
+	// Web UI: serve index.html at root and static assets from web/
+	r.Get("/", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "web/index.html")
+	})
+	r.Handle("/static/*", http.StripPrefix("/static/", http.FileServer(http.Dir("web"))))
 
 	// server
 	srv := &http.Server{

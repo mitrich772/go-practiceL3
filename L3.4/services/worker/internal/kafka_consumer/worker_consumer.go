@@ -8,16 +8,16 @@ import (
 	"log/slog"
 	"time"
 
-	"contracts/dto"
-	"contracts/model"
-	contractStorage "contracts/storage"
-	"worker/internal/repo"
-
-	"worker/internal/service"
-
 	"github.com/segmentio/kafka-go"
 	wbfkafka "github.com/wb-go/wbf/kafka"
 	"github.com/wb-go/wbf/retry"
+
+	"contracts/dto"
+	"contracts/model"
+	contractStorage "contracts/storage"
+
+	"worker/internal/repo"
+	"worker/internal/service"
 )
 
 type WorkerConsumer struct {
@@ -30,7 +30,7 @@ type WorkerConsumer struct {
 
 	imgProc service.ImageProcessor
 
-	// commitRetry retry.Strategy // TODO: опционально, если захочешь retry на commit
+	// commitRetry retry.Strategy
 }
 
 // New — конструктор consumer'а воркера.
@@ -71,7 +71,6 @@ func New(
 	}
 }
 
-// TODO: вынести в сервис и логи левел debug бахнуть и будет супир
 // StartConsume — минимально рабочий цикл.
 // Сейчас: read original -> save processed (как есть) -> MarkReady -> commit.
 func (c *WorkerConsumer) StartConsume(ctx context.Context) {
@@ -192,10 +191,15 @@ func (c *WorkerConsumer) StartConsume(ctx context.Context) {
 				_ = c.commitAndLog(ctx, l, msg, "skip: deleted after processing")
 				continue
 			}
-			// БД временно легла -> НЕ commit (Kafka даст повтор),
-			// но учти: повторная обработка должна быть идемпотентной
+			// БД временно недоступна -> НЕ commit (Kafka даст повтор),
+			// повторная обработка должна быть идемпотентной
 			l.Error("mark ready failed", slog.Any("err", err), slog.String("id", job.ID))
 			continue
+		}
+
+		// 6.5) Удаляем оригинал за ненадобностью для экономии места
+		if err := c.storage.DeleteOriginal(ctx, job.OriginalPath); err != nil {
+			l.Error("delete original failed (non-critical)", slog.Any("err", err), slog.String("path", job.OriginalPath))
 		}
 
 		// 7) commit успеха

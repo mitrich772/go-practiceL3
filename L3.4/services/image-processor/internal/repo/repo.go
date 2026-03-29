@@ -2,8 +2,9 @@ package repo
 
 import (
 	"context"
-	"contracts/model"
 	"errors"
+
+	"contracts/model"
 )
 
 var (
@@ -20,7 +21,4 @@ type ImageRepo interface {
 
 	// Delete — удалить запись (DELETE /image/{id}).
 	Delete(ctx context.Context, id string) error
-
-	// MarkFailed — отметить задачу упавшей (если обработка не удалась).
-	MarkFailed(ctx context.Context, id string) error
 }

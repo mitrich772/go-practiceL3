@@ -3,13 +3,12 @@ package handlers
 import (
 	"errors"
 	"io/fs"
+	"log/slog"
 	"net/http"
 
-	"image-processor/internal/repo"
-
-	"log/slog"
-
 	"github.com/go-chi/chi/v5"
+
+	"image-processor/internal/repo"
 )
 
 // DeleteImage — DELETE /image/{id}

@@ -28,6 +28,19 @@ func (fs *FileStorage) OpenOriginal(ctx context.Context, path string) (io.ReadCl
 	return os.Open(path)
 }
 
+func (fs *FileStorage) DeleteOriginal(ctx context.Context, path string) error {
+	if err := ctx.Err(); err != nil {
+		return err
+	}
+	if !isInsideDir(fs.OriginalDir, path) {
+		return errors.New("original path is outside storage dir")
+	}
+	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+		return err
+	}
+	return nil
+}
+
 func (fs *FileStorage) SaveProcessed(ctx context.Context, id string, ext string, data []byte) (string, error) {
 	if err := ctx.Err(); err != nil {
 		return "", err
@@ -49,9 +62,6 @@ func (fs *FileStorage) SaveProcessed(ctx context.Context, id string, ext string,
 	}
 	return fullPath, nil
 }
-
-// Остальные методы можешь тоже держать, но воркеру минимально нужны эти 2.
-// Если хочешь чтобы *FileStorage реализовывал contracts/storage.Storage целиком — добавь все методы.
 
 func sanitizeExt(ext string) string {
 	ext = strings.ToLower(ext)

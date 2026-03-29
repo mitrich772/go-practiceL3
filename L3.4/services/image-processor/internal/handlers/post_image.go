@@ -1,18 +1,20 @@
 package handlers
 
 import (
-	contractDTO "contracts/dto"
-	"contracts/model"
 	"crypto/rand"
 	"encoding/hex"
 	"encoding/json"
-	"image-processor/internal/dto"
 	"io"
 	"log/slog"
 	"net/http"
 	"strconv"
 	"strings"
 	"time"
+
+	contractDTO "contracts/dto"
+	"contracts/model"
+
+	"image-processor/internal/dto"
 )
 
 func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
@@ -38,7 +40,7 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "file is required (field name: file)", http.StatusBadRequest)
 		return
 	}
-	defer file.Close()
+	defer func() { _ = file.Close() }()
 
 	filename := header.Filename
 	log = log.With(slog.String("filename", filename))
@@ -193,7 +195,7 @@ func (h *Handler) Upload(w http.ResponseWriter, r *http.Request) {
 	// 15) Успех: приняли, сохранили, поставили в очередь
 	log.Info("upload accepted")
 
-	// 16) Отвечаем клиенту: приняли на обработку, вот id
+	// 16) Ответ клиенту: приняли на обработку, возвращаем id
 	resp := dto.UploadResponseDTO{
 		ID:        id,
 		Status:    "processing",

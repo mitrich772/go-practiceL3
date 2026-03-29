@@ -2,8 +2,9 @@ package repo
 
 import (
 	"context"
-	"contracts/model"
 	"errors"
+
+	"contracts/model"
 )
 
 var (

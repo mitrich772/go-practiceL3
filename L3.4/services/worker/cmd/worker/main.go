@@ -6,19 +6,19 @@ import (
 	"log/slog"
 	"os"
 	"os/signal"
+	"sync"
 	"syscall"
 	"time"
-
-	"worker/internal/config"
-	"worker/internal/kafka_consumer"
-
-	pgrepo "worker/internal/repo/postgres"
-	"worker/internal/service"
-	localstorage "worker/internal/storage"
 
 	"github.com/wb-go/wbf/dbpg"
 	wbfkafka "github.com/wb-go/wbf/kafka"
 	"github.com/wb-go/wbf/retry"
+
+	"worker/internal/config"
+	"worker/internal/kafka_consumer"
+	pgrepo "worker/internal/repo/postgres"
+	"worker/internal/service"
+	localstorage "worker/internal/storage"
 )
 
 const (
@@ -105,14 +105,16 @@ func main() {
 
 	workerConsumer := kafka_consumer.New(log, consumer, fetchRetry, fs, dbRepo, imgProc)
 
-	// ВАЖНО: StartConsume блокирует — запускаем в goroutine
-	go workerConsumer.StartConsume(ctx)
+	wgConsumer := sync.WaitGroup{}
+	wgConsumer.Go(func() {
+		workerConsumer.StartConsume(ctx)
+	})
 
 	<-stop
 	log.Info("shutdown signal received")
 	cancel()
+	wgConsumer.Wait()
 
-	time.Sleep(300 * time.Millisecond)
 	log.Info("worker shutdown complete")
 }
 

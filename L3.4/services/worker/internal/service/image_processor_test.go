@@ -9,10 +9,10 @@ import (
 	"image/png"
 	"testing"
 
-	"contracts/dto"
-
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+
+	"contracts/dto"
 )
 
 func createTestJPEG(t *testing.T, w, h int) []byte {

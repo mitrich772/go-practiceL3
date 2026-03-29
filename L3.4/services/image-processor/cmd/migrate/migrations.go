@@ -1,14 +1,16 @@
 package main
 
 import (
+	"errors"
 	"flag"
 	"fmt"
-	"image-processor/internal/config"
 	"log"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
 	_ "github.com/golang-migrate/migrate/v4/source/file"
+
+	"image-processor/internal/config"
 )
 
 func main() {
@@ -45,7 +47,7 @@ func main() {
 		log.Fatalf("Неизвестное действие: %s", *action)
 	}
 
-	if err != nil && err != migrate.ErrNoChange {
+	if err != nil && !errors.Is(err, migrate.ErrNoChange) {
 		log.Fatalf("Ошибка миграции: %v", err)
 	}
 

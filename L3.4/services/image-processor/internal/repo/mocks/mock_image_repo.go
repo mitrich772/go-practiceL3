@@ -84,16 +84,3 @@ func (mr *MockImageRepoMockRecorder) Get(ctx, id any) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockImageRepo)(nil).Get), ctx, id)
 }
 
-// MarkFailed mocks base method.
-func (m *MockImageRepo) MarkFailed(ctx context.Context, id string) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "MarkFailed", ctx, id)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// MarkFailed indicates an expected call of MarkFailed.
-func (mr *MockImageRepoMockRecorder) MarkFailed(ctx, id any) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MarkFailed", reflect.TypeOf((*MockImageRepo)(nil).MarkFailed), ctx, id)
-}

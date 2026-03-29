@@ -2,8 +2,9 @@ package service
 
 import (
 	"context"
-	"contracts/dto"
 	"errors"
+
+	"contracts/dto"
 )
 
 var (

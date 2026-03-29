@@ -3,18 +3,23 @@ package service
 import (
 	"bytes"
 	"context"
-	"contracts/dto"
 	"fmt"
 	"image"
 	"image/color"
 	_ "image/jpeg"
 	_ "image/png"
 	"log/slog"
+	"math"
 	"path/filepath"
 	"strings"
 
 	"github.com/disintegration/imaging"
 	"github.com/fogleman/gg"
+	"github.com/golang/freetype/truetype"
+	gowatermark "github.com/michaelwp/goWatermark"
+	"golang.org/x/image/font/gofont/goregular"
+
+	"contracts/dto"
 )
 
 type imageProcessorService struct {
@@ -25,9 +30,6 @@ func NewImageProcessor(log *slog.Logger) ImageProcessor {
 	if log == nil {
 		log = slog.Default()
 	}
-
-	// Можно добавить какие-то дефолтные конфиги,
-	// лимиты памяти или внешние зависимости (например, кэш).
 	return &imageProcessorService{
 		log: log.With(slog.String("component", "ImageProcessor")),
 	}
@@ -148,15 +150,41 @@ func (s *imageProcessorService) watermark(ctx context.Context, imgBytes []byte, 
 	dc := gg.NewContext(w, h)
 	dc.DrawImage(img, 0, 0)
 
-	dc.SetColor(color.RGBA{255, 255, 255, 128})
+	font, err := truetype.Parse(goregular.TTF)
+	if err != nil {
+		return nil, fmt.Errorf("failed to parse font: %w", err)
+	}
 
-	dc.DrawLine(0, 0, float64(w), float64(h))
-	dc.SetLineWidth(10)
-	dc.SetColor(color.RGBA{255, 0, 0, 100})
-	dc.Stroke()
+	fontSize := math.Max(float64(h)/20, 16)
+	lineSpacing := fontSize * 2.5
+	// при повороте -30° нужен запас: текст начинается выше видимой области
+	startY := -float64(w) * 0.6
+	// диагональ изображения — столько нужно покрыть по вертикали
+	diag := math.Sqrt(float64(w*w + h*h))
+	totalHeight := diag + math.Abs(startY)
+	repY := int(totalHeight/lineSpacing) + 2
 
-	dc.SetColor(color.RGBA{255, 255, 255, 200})
-	dc.DrawStringAnchored(watermarkText, float64(w)/2, float64(h)/2, 0.5, 0.5)
+	wm := &gowatermark.Watermark{
+		Text: watermarkText,
+		Position: gowatermark.Position{
+			PosX: -float64(w) * 0.5,
+			PosY: startY,
+		},
+		Font: gowatermark.Font{
+			FontSize: fontSize,
+		},
+		Color:       color.RGBA{R: 255, G: 255, B: 255, A: 80},
+		Align:       gowatermark.AlignCenter,
+		LineSpacing: lineSpacing,
+		Rotate:      -30,
+		Repeat: gowatermark.Repeat{
+			RepY:        repY,
+			RepX:        5,
+			WordSpacing: 8,
+		},
+	}
+
+	gowatermark.DrawWatermark(font, wm, dc, float64(w)*2, float64(h))
 
 	outImg := dc.Image()
 

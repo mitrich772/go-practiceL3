@@ -56,6 +56,20 @@ func (mr *MockWorkerStorageMockRecorder) OpenOriginal(ctx, path any) *gomock.Cal
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "OpenOriginal", reflect.TypeOf((*MockWorkerStorage)(nil).OpenOriginal), ctx, path)
 }
 
+// DeleteOriginal mocks base method.
+func (m *MockWorkerStorage) DeleteOriginal(ctx context.Context, path string) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "DeleteOriginal", ctx, path)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// DeleteOriginal indicates an expected call of DeleteOriginal.
+func (mr *MockWorkerStorageMockRecorder) DeleteOriginal(ctx, path any) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteOriginal", reflect.TypeOf((*MockWorkerStorage)(nil).DeleteOriginal), ctx, path)
+}
+
 // SaveProcessed mocks base method.
 func (m *MockWorkerStorage) SaveProcessed(ctx context.Context, id, ext string, data []byte) (string, error) {
 	m.ctrl.T.Helper()

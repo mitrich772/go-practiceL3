@@ -18,4 +18,5 @@ type APIStorage interface {
 type WorkerStorage interface {
 	OpenOriginal(ctx context.Context, path string) (io.ReadCloser, error)
 	SaveProcessed(ctx context.Context, id string, ext string, data []byte) (string, error)
+	DeleteOriginal(ctx context.Context, path string) error
 }

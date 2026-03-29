@@ -3,11 +3,12 @@ package handlers
 import (
 	"log/slog"
 
-	"contracts/storage"
-	"image-processor/internal/repo"
-
 	"github.com/wb-go/wbf/kafka"
 	"github.com/wb-go/wbf/retry"
+
+	"contracts/storage"
+
+	"image-processor/internal/repo"
 )
 
 type Handler struct {

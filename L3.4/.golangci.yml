@@ -1,0 +1,57 @@
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: true
+
+linters-settings:
+  govet:
+    enable-all: true
+    disable:
+      - fieldalignment
+      - shadow
+  gci:
+    sections:
+      - standard
+      - default
+      - prefix(contracts)
+      - prefix(image-processor)
+      - prefix(worker)
+  revive:
+    severity: warning
+  errcheck:
+    check-type-assertions: false
+    check-blank: false
+
+linters:
+  disable-all: true
+  enable:
+    # Default standard linters
+    - errcheck
+    - gosimple
+    - govet
+    - ineffassign
+    - staticcheck
+    - typecheck
+    - unused
+    
+    # Imports and formatting
+    - gci
+    - goimports
+    
+    # Code quality and style (delivers on "golint and other good ones")
+    - revive
+    - errorlint
+    - misspell
+    - unconvert
+    - bodyclose
+    - copyloopvar
+    - durationcheck
+    - nilerr
+    - makezero
+    - prealloc
+    - predeclared
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0

@@ -1,0 +1,6 @@
+# Executables
+*.exe
+
+# Linter outputs
+lint.json
+lint.txt

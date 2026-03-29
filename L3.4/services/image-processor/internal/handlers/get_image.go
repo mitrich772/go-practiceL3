@@ -8,10 +8,11 @@ import (
 	"net/http"
 	"path/filepath"
 
-	"contracts/model"
-	"image-processor/internal/repo"
-
 	"github.com/go-chi/chi/v5"
+
+	"contracts/model"
+
+	"image-processor/internal/repo"
 )
 
 // GetImage — GET /image/{id}
@@ -70,12 +71,12 @@ func (h *Handler) GetImage(w http.ResponseWriter, r *http.Request) {
 	// 4) Открываем файл через storage
 	rc, err := h.Storage.OpenProcessed(ctx, processedPath)
 	if err != nil {
-		// если в storage ты возвращаешь os.ErrNotExist — можно мапить в 404
+		// если storage возвращает os.ErrNotExist — можно мапить в 404
 		h.Logger.Error("open processed failed", "err", err, "id", id, "path", processedPath)
 		http.Error(w, "processed file not found", http.StatusNotFound)
 		return
 	}
-	defer rc.Close()
+	defer func() { _ = rc.Close() }()
 
 	// 5) Content-Type: сначала по расширению
 	if ext := filepath.Ext(processedPath); ext != "" {

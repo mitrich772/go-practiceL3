@@ -9,15 +9,16 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"contracts/model"
-	storageMocks "image-processor/internal/handlers/mocks"
-	"image-processor/internal/repo"
-	repoMocks "image-processor/internal/repo/mocks"
-
 	"github.com/go-chi/chi/v5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/mock/gomock"
+
+	"contracts/model"
+
+	storageMocks "image-processor/internal/handlers/mocks"
+	"image-processor/internal/repo"
+	repoMocks "image-processor/internal/repo/mocks"
 )
 
 func setupHandler(t *testing.T) (*Handler, *repoMocks.MockImageRepo, *storageMocks.MockAPIStorage, *gomock.Controller) {

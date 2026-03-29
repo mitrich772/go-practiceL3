@@ -38,7 +38,7 @@ type DB struct {
 	ConnMaxLifetime time.Duration `yaml:"conn_max_lifetime" env-default:"30m"`
 }
 
-// Kafka содержит настройки Kafka (для API нам нужен producer).
+// Kafka содержит настройки Kafka (для API требуется producer).
 type Kafka struct {
 	Brokers       []string `yaml:"brokers" env-required:"true"`
 	TopicImagesIn string   `yaml:"topic_images_in" env-default:"images.in"`

@@ -7,10 +7,11 @@ import (
 	"log/slog"
 	"time"
 
-	"contracts/model"
-	"worker/internal/repo"
-
 	"github.com/wb-go/wbf/dbpg"
+
+	"contracts/model"
+
+	"worker/internal/repo"
 )
 
 type PostgresRepo struct {

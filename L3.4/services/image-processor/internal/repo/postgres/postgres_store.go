@@ -7,10 +7,11 @@ import (
 	"log/slog"
 	"time"
 
-	"contracts/model"
-	"image-processor/internal/repo"
-
 	"github.com/wb-go/wbf/dbpg"
+
+	"contracts/model"
+
+	"image-processor/internal/repo"
 )
 
 type PostgresRepo struct {
@@ -187,72 +188,3 @@ func (r *PostgresRepo) Get(ctx context.Context, id string) (model.Image, error) 
 	return img, nil
 }
 
-func (r *PostgresRepo) MarkFailed(ctx context.Context, id string) error {
-	log := r.log.With(slog.String("method", "MarkFailed"))
-	start := time.Now()
-
-	// 1) Пробуем выставить failed ТОЛЬКО если processing
-	const q = `
-		UPDATE images
-		SET status = 'failed', updated_at = NOW()
-		WHERE id = $1 AND status = 'processing'
-	`
-
-	res, err := r.db.ExecContext(ctx, q, id)
-	if err != nil {
-		log.Error("db mark_failed update failed",
-			slog.Any("err", err),
-			slog.String("id", id),
-			slog.Duration("took", time.Since(start)),
-		)
-		return err
-	}
-
-	affected, err := res.RowsAffected()
-	if err != nil {
-		log.Error("db mark_failed rows_affected failed",
-			slog.Any("err", err),
-			slog.String("id", id),
-			slog.Duration("took", time.Since(start)),
-		)
-		return err
-	}
-
-	if affected == 1 {
-		log.Info("db mark_failed ok",
-			slog.String("id", id),
-			slog.Duration("took", time.Since(start)),
-		)
-		return nil
-	}
-
-	// 2) если не обновили — выясняем: нет записи или уже другой статус
-	const q2 = `SELECT status FROM images WHERE id = $1`
-
-	var statusStr string
-	err = r.db.QueryRowContext(ctx, q2, id).Scan(&statusStr)
-	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			log.Info("db mark_failed not found",
-				slog.String("id", id),
-				slog.Duration("took", time.Since(start)),
-			)
-			return repo.ErrNotFound
-		}
-		log.Error("db mark_failed select failed",
-			slog.Any("err", err),
-			slog.String("id", id),
-			slog.Duration("took", time.Since(start)),
-		)
-		return err
-	}
-
-	// уже ready/failed — это ок
-	log.Info("db mark_failed skipped (status not processing)",
-		slog.String("id", id),
-		slog.String("status", statusStr),
-		slog.Duration("took", time.Since(start)),
-	)
-
-	return nil
-}
