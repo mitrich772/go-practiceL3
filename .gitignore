@@ -26,3 +26,7 @@ dist/
 tmp/
 
 .sh
+
+# Linter outputs
+lint.json
+lint.txt

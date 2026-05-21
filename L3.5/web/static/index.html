@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Бронирование мероприятий</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav>
+        <a href="index.html" class="active">Пользователь</a>
+        <a href="admin.html">Админ</a>
+    </nav>
+
+    <h1>Доступные мероприятия</h1>
+    <div id="events-list" class="grid"></div>
+
+    <div id="event-detail" class="modal" style="display:none;">
+        <div class="modal-content">
+            <button class="close-btn" onclick="closeModal()">✕</button>
+            <h2 id="modal-title"></h2>
+            <p id="modal-date"></p>
+            <p>Свободных мест: <strong id="modal-free-count"></strong></p>
+            <p class="hint">⏱ Неоплаченная бронь автоматически отменяется через 2 минуты</p>
+
+            <h3>Выберите место:</h3>
+            <div id="seats-grid" class="seats-container"></div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+    <script>
+        // Загружаем список при старте
+        window.onload = loadEvents;
+    </script>
+</body>
+
+</html>

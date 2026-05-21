@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <nav>
+        <a href="index.html">Пользователь</a>
+        <a href="admin.html" class="active">Админ</a>
+    </nav>
+
+    <h1>Создать новое мероприятие</h1>
+    <form id="create-event-form" class="admin-form">
+        <input type="text" id="title" placeholder="Название мероприятия" required>
+        <textarea id="description" placeholder="Описание (необязательно)" rows="3"></textarea>
+        <input type="datetime-local" id="date" required>
+        <input type="number" id="capacity" placeholder="Количество мест" min="1" required>
+        <button type="submit">Создать</button>
+    </form>
+
+    <h2>Все мероприятия</h2>
+    <div id="events-list-admin"></div>
+
+    <script src="app.js"></script>
+    <script>
+        document.getElementById('create-event-form').onsubmit = createEvent;
+        window.onload = loadEventsAdmin;
+    </script>
+</body>
+
+</html>

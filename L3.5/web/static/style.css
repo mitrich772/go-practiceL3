@@ -1,0 +1,285 @@
+body {
+    font-family: sans-serif;
+    padding: 20px;
+    background: #f4f4f4;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+h1, h2 {
+    color: #333;
+}
+
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.card h3 {
+    margin-top: 0;
+}
+
+.card button {
+    margin-top: 10px;
+    cursor: pointer;
+    background: #4a90d9;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+}
+
+.card button:hover {
+    background: #357abd;
+}
+
+.event-date {
+    color: #666;
+    font-size: 0.9em;
+}
+
+.event-capacity {
+    color: #888;
+    font-size: 0.9em;
+}
+
+.empty {
+    color: #999;
+    font-style: italic;
+}
+
+/* Модальное окно */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 100;
+    overflow-y: auto;
+}
+
+.modal-content {
+    background: white;
+    margin: 5% auto;
+    padding: 20px;
+    width: 80%;
+    max-width: 700px;
+    border-radius: 10px;
+    position: relative;
+}
+
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    background: none;
+    border: none;
+    font-size: 1.5em;
+    cursor: pointer;
+    color: #999;
+}
+
+.close-btn:hover {
+    color: #333;
+}
+
+.hint {
+    color: #e67e22;
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+/* Места */
+.seats-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.seat {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    text-align: center;
+    min-width: 100px;
+}
+
+.seat .seat-number {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.seat .seat-status {
+    display: block;
+    font-size: 0.8em;
+    color: #666;
+    margin-bottom: 6px;
+}
+
+.seat button {
+    cursor: pointer;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    font-size: 0.85em;
+}
+
+.free {
+    background: #e1ffdf;
+    border-color: #8bc34a;
+}
+
+.free button {
+    background: #4caf50;
+    color: white;
+}
+
+.free button:hover {
+    background: #388e3c;
+}
+
+.reserved {
+    background: #fff3cd;
+    border-color: #ffc107;
+}
+
+.reserved button {
+    background: #ff9800;
+    color: white;
+}
+
+.reserved button:hover {
+    background: #e68900;
+}
+
+.confirmed {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+.paid {
+    background: #d4edda;
+    border-color: #28a745;
+    color: #155724;
+}
+
+/* Форма создания */
+.admin-form {
+    display: flex;
+    flex-direction: column;
+    max-width: 400px;
+    gap: 10px;
+    margin-bottom: 30px;
+}
+
+.admin-form input,
+.admin-form textarea {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1em;
+}
+
+.admin-form button {
+    background: #4a90d9;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+}
+
+.admin-form button:hover {
+    background: #357abd;
+}
+
+/* Админ карточки */
+.admin-card {
+    background: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    margin-bottom: 15px;
+}
+
+.admin-card h3 {
+    margin-top: 0;
+}
+
+.event-desc {
+    color: #555;
+    font-size: 0.9em;
+}
+
+.stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.stat {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 0.85em;
+    font-weight: bold;
+}
+
+.stat.free {
+    background: #e1ffdf;
+    color: #2e7d32;
+}
+
+.stat.reserved {
+    background: #fff3cd;
+    color: #856404;
+}
+
+.stat.confirmed {
+    background: #d4edda;
+    color: #155724;
+}
+
+.stat.total {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+/* Навигация */
+nav {
+    margin-bottom: 20px;
+    background: #333;
+    padding: 10px 15px;
+    border-radius: 5px;
+}
+
+nav a {
+    color: #ccc;
+    text-decoration: none;
+    margin-right: 15px;
+    padding: 5px 10px;
+    border-radius: 3px;
+}
+
+nav a:hover {
+    color: white;
+}
+
+nav a.active {
+    color: white;
+    background: rgba(255, 255, 255, 0.15);
+}
