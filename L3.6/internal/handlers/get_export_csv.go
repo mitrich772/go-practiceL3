@@ -12,16 +12,12 @@ import (
 	"salestracker/internal/model"
 )
 
-// CSVLister отдаёт все записи фильтра без пагинации (порция за порцией).
-// Реализуется тем же объектом, что и ItemsLister.
 type CSVLister interface {
 	List(ctx context.Context, f model.ItemFilter) ([]model.Item, bool, error)
 }
 
-// csvPageSize — размер одной страницы при потоковой выгрузке CSV.
 const csvPageSize = 1000
 
-// ExportCSV обрабатывает GET /items.csv?from=...&to=...&type=...&category=...
 func (h *Handler) ExportCSV(w http.ResponseWriter, r *http.Request) {
 	const op = "handlers.ExportCSV"
 	log := h.log.With(slog.String("op", op))
@@ -31,7 +27,7 @@ func (h *Handler) ExportCSV(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	// Для CSV пагинацию пользователя не учитываем — выгружаем всё, постранично.
+
 	f.Limit = csvPageSize
 	f.Offset = 0
 	f.Sort = "occurred_at"
@@ -40,6 +36,12 @@ func (h *Handler) ExportCSV(w http.ResponseWriter, r *http.Request) {
 	filename := fmt.Sprintf("items_%s.csv", time.Now().UTC().Format("20060102_150405"))
 	w.Header().Set("Content-Type", "text/csv; charset=utf-8")
 	w.Header().Set("Content-Disposition", `attachment; filename="`+filename+`"`)
+
+	_, err = w.Write([]byte{0xEF, 0xBB, 0xBF})
+	if err != nil {
+		log.Error("failed to write csv BOM", slog.Any("err", err))
+		return
+	}
 
 	cw := csv.NewWriter(w)
 	defer cw.Flush()
