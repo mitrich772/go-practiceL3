@@ -1,0 +1,11 @@
+env: "local"
+
+server:
+  addr: ":8080"
+db:
+  host: "localhost"
+  port: 5436
+  user: "postgres"
+  password: "postgres"
+  dbname: "salestracker"
+  sslmode: "disable"

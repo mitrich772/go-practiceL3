@@ -1,0 +1,41 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: postgres-salestracker
+    environment:
+      POSTGRES_DB: salestracker
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5436:5432"
+    volumes:
+      - pgdata_salestracker:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d salestracker"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+  migrate:
+    build: .
+    container_name: salestracker-migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["/app/migrate", "-action", "up"]
+    volumes:
+      - ./config/docker.yaml:/app/config/local.yaml
+
+  server:
+    build: .
+    container_name: salestracker-server
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./config/docker.yaml:/app/config/local.yaml
+
+volumes:
+  pgdata_salestracker:

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalesTracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>SalesTracker</h1>
+
+    <form id="create-form" class="row">
+        <select id="f-type" required>
+            <option value="income">доход</option>
+            <option value="expense">расход</option>
+        </select>
+        <input id="f-amount" type="number" min="0" step="0.01" placeholder="сумма" required>
+        <input id="f-category" type="text" maxlength="64" placeholder="категория" required>
+        <input id="f-date" type="datetime-local">
+        <input id="f-note" type="text" maxlength="255" placeholder="комментарий">
+        <button type="submit">+ Добавить</button>
+        <div id="form-flash" class="flash" hidden></div>
+    </form>
+
+    <form id="filter-form" class="row">
+        <input id="q-from" type="date" title="с">
+        <input id="q-to" type="date" title="по">
+        <select id="q-type">
+            <option value="">любой тип</option>
+            <option value="income">доход</option>
+            <option value="expense">расход</option>
+        </select>
+        <input id="q-category" type="text" maxlength="64" placeholder="категория">
+        <button type="submit">Фильтр</button>
+        <button type="button" id="reset-filters">сброс</button>
+        <a id="csv-link" href="#" download>CSV</a>
+    </form>
+
+    <p class="metrics">
+        <span>count <b id="m-count">—</b></span>
+        <span>sum <b id="m-sum">—</b></span>
+        <span>avg <b id="m-avg">—</b></span>
+        <span>median <b id="m-median">—</b></span>
+        <span>p90 <b id="m-p90">—</b></span>
+    </p>
+
+    <table id="items-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Тип</th>
+                <th class="num">Сумма</th>
+                <th>Категория</th>
+                <th>Дата</th>
+                <th>Комментарий</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="pager">
+        <button id="prev-page">←</button>
+        <span id="page-info">страница 1</span>
+        <button id="next-page">→</button>
+    </div>
+
+    <div id="edit-modal" class="modal" hidden>
+        <div class="modal-content">
+            <button class="close-btn" id="edit-close" type="button">×</button>
+            <h2>Редактировать</h2>
+            <form id="edit-form" class="col">
+                <select id="e-type" required>
+                    <option value="income">доход</option>
+                    <option value="expense">расход</option>
+                </select>
+                <input id="e-amount" type="number" min="0" step="0.01" placeholder="сумма" required>
+                <input id="e-category" type="text" maxlength="64" placeholder="категория" required>
+                <input id="e-date" type="datetime-local">
+                <input id="e-note" type="text" maxlength="255" placeholder="комментарий">
+                <button type="submit">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
