@@ -1,0 +1,10 @@
+DROP TRIGGER IF EXISTS trg_items_audit ON items;
+DROP TRIGGER IF EXISTS trg_items_updated_at ON items;
+DROP FUNCTION IF EXISTS audit_item_changes();
+DROP FUNCTION IF EXISTS set_updated_at();
+DROP INDEX IF EXISTS idx_item_history_item;
+DROP INDEX IF EXISTS idx_items_sku;
+DROP INDEX IF EXISTS idx_items_name;
+DROP TABLE IF EXISTS item_history;
+DROP TABLE IF EXISTS items;
+DROP TABLE IF EXISTS users;

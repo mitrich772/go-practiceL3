@@ -1,0 +1,242 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px 16px 48px;
+    color: #222;
+    background: #fff;
+    line-height: 1.4;
+}
+
+h1 {
+    margin: 0 0 20px;
+    font-size: 22px;
+    font-weight: 600;
+}
+
+h2 {
+    margin: 0 0 12px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    align-items: center;
+}
+
+.col {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+input,
+select,
+button {
+    font: inherit;
+    padding: 6px 10px;
+    border: 1px solid #c8ccd1;
+    border-radius: 4px;
+    background: #fff;
+    color: #222;
+}
+
+code {
+    font-family: ui-monospace, SFMono-Regular, Consolas, monospace;
+}
+
+.card {
+    padding: 14px;
+    margin-bottom: 16px;
+    border: 1px solid #ecedf0;
+    border-radius: 6px;
+    background: #fbfcfe;
+}
+
+.muted {
+    color: #666;
+    font-size: 13px;
+}
+
+input:focus,
+select:focus {
+    outline: none;
+    border-color: #4a90d9;
+}
+
+button {
+    cursor: pointer;
+    background: #f3f5f7;
+}
+
+button:hover {
+    background: #e7eaee;
+}
+
+button[type="submit"] {
+    background: #222;
+    color: #fff;
+    border-color: #222;
+}
+
+button[type="submit"]:hover {
+    background: #000;
+}
+
+.flash {
+    flex-basis: 100%;
+    font-size: 13px;
+    padding: 6px 10px;
+    border-radius: 4px;
+}
+
+.flash.ok {
+    background: #e7f5ec;
+    color: #1d6f3a;
+}
+
+.flash.err {
+    background: #fae6e6;
+    color: #8c1e1e;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+}
+
+table th,
+table td {
+    padding: 6px 8px;
+    text-align: left;
+    border-bottom: 1px solid #ecedf0;
+}
+
+table th {
+    color: #666;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+table th.num,
+table td.num {
+    text-align: right;
+}
+
+.tag {
+    font-size: 12px;
+    color: #666;
+}
+
+.tag.insert {
+    color: #1d6f3a;
+}
+
+.tag.update {
+    color: #7457c8;
+}
+
+.tag.delete {
+    color: #8c1e1e;
+}
+
+.row-actions {
+    text-align: right;
+    white-space: nowrap;
+}
+
+.row-actions button {
+    padding: 2px 8px;
+    font-size: 12px;
+    background: transparent;
+    border-color: transparent;
+    color: #666;
+}
+
+.row-actions button:hover {
+    background: #f3f5f7;
+    color: #222;
+}
+
+.pager {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 12px;
+    color: #666;
+    font-size: 13px;
+}
+
+.pager button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.empty {
+    color: #888;
+    text-align: center;
+    padding: 12px;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+.modal[hidden] {
+    display: none;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 6px;
+    padding: 20px;
+    width: min(420px, 92vw);
+    position: relative;
+}
+
+.modal-content h2 {
+    margin: 0 0 12px;
+}
+
+.close-btn {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: transparent;
+    border: none;
+    font-size: 20px;
+    color: #888;
+    cursor: pointer;
+    padding: 4px 8px;
+}
+
+.close-btn:hover {
+    color: #222;
+}
+
+@media (max-width: 640px) {
+    .row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .card {
+        padding: 10px;
+    }
+}

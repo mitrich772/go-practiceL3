@@ -1,0 +1,16 @@
+env: "local"
+
+server:
+  addr: ":8080"
+
+auth:
+  jwt_secret: "warehousecontrol-local-secret"
+  token_ttl: "12h"
+
+db:
+  host: "postgres"
+  port: 5432
+  user: "postgres"
+  password: "postgres"
+  dbname: "warehousecontrol"
+  sslmode: "disable"

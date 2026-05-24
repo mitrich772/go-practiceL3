@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WarehouseControl</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <h1>WarehouseControl</h1>
+
+    <section class="card">
+        <h2>Вход</h2>
+        <form id="login-form" class="row">
+            <select id="role-select">
+                <option value="admin">admin — полный доступ</option>
+                <option value="manager">manager — просмотр и редактирование</option>
+                <option value="viewer">viewer — только просмотр</option>
+            </select>
+            <input id="username" type="text" maxlength="64" placeholder="имя пользователя">
+            <button type="submit">Войти</button>
+            <span id="current-user" class="muted">не авторизован</span>
+        </form>
+    </section>
+
+    <form id="create-form" class="row card" hidden>
+        <input id="f-name" type="text" maxlength="120" placeholder="товар" required>
+        <input id="f-sku" type="text" maxlength="64" placeholder="SKU" required>
+        <input id="f-quantity" type="number" min="0" step="1" placeholder="остаток" required>
+        <input id="f-location" type="text" maxlength="120" placeholder="ячейка/зона">
+        <input id="f-description" type="text" maxlength="255" placeholder="описание">
+        <button type="submit">+ Добавить</button>
+        <div id="form-flash" class="flash" hidden></div>
+    </form>
+
+    <form id="filter-form" class="row">
+        <input id="q-search" type="text" maxlength="120" placeholder="поиск по товару, SKU или зоне">
+        <button type="submit">Фильтр</button>
+        <button type="button" id="reset-filters">сброс</button>
+    </form>
+
+    <table id="items-table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Товар</th>
+                <th>SKU</th>
+                <th class="num">Остаток</th>
+                <th>Локация</th>
+                <th>Описание</th>
+                <th>Обновлено</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <div class="pager">
+        <button id="prev-page">←</button>
+        <span id="page-info">страница 1</span>
+        <button id="next-page">→</button>
+    </div>
+
+    <section id="history-block" class="card" hidden>
+        <h2>История товара <span id="history-title"></span></h2>
+        <table id="history-table">
+            <thead>
+                <tr>
+                    <th>Когда</th>
+                    <th>Действие</th>
+                    <th>Кто</th>
+                    <th>Роль</th>
+                    <th>До</th>
+                    <th>После</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+    </section>
+
+    <div id="edit-modal" class="modal" hidden>
+        <div class="modal-content">
+            <button class="close-btn" id="edit-close" type="button">×</button>
+            <h2>Редактировать</h2>
+            <form id="edit-form" class="col">
+                <input id="e-name" type="text" maxlength="120" placeholder="товар" required>
+                <input id="e-sku" type="text" maxlength="64" placeholder="SKU" required>
+                <input id="e-quantity" type="number" min="0" step="1" placeholder="остаток" required>
+                <input id="e-location" type="text" maxlength="120" placeholder="ячейка/зона">
+                <input id="e-description" type="text" maxlength="255" placeholder="описание">
+                <button type="submit">Сохранить</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
